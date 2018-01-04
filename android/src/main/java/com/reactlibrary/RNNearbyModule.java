@@ -13,32 +13,32 @@ import com.facebook.react.bridge.Callback;
 public class RNNearbyModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
     private static final String TAG = "RNNearby";
 
-  private final ReactApplicationContext reactContext;
+    private final ReactApplicationContext reactContext;
 
-  public RNNearbyModule(ReactApplicationContext reactContext) {
-    super(reactContext);
-    this.reactContext = reactContext;
+    public RNNearbyModule(ReactApplicationContext reactContext) {
+        super(reactContext);
+        this.reactContext = reactContext;
 
-      Log.d(TAG, "Starting module");
-  }
+        Log.d(TAG, "Starting module");
+    }
 
-  @Override
-  public String getName() {
-    return "RNNearby";
-  }
+    @Override
+    public String getName() {
+        return "RNNearby";
+    }
 
-  @Override
-  public void onHostResume() {
-      Log.d(TAG, "Resuming Nearby subscriptions");
-  }
+    @Override
+    public void onHostResume() {
+        Log.d(TAG, "Resuming Nearby subscriptions");
+    }
 
-  @Override
-  public void onHostPause() {
-      Log.d(TAG, "Pausing Nearby subscriptions");
-  }
+    @Override
+    public void onHostPause() {
+        Log.d(TAG, "Pausing Nearby subscriptions");
+    }
 
-  @Override
-  public void onHostDestroy() {
-    Log.d(TAG, "Stopping Nearby subscriptions");
-  }
+    @Override
+    public void onHostDestroy() {
+        Log.d(TAG, "Stopping Nearby subscriptions");
+    }
 }
