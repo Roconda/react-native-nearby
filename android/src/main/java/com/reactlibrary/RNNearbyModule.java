@@ -18,6 +18,7 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
     public RNNearbyModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
+        reactContext.addLifecycleEventListener(this);
 
         Log.d(TAG, "Starting module");
     }
