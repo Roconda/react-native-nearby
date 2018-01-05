@@ -16,12 +16,15 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.nearby.Nearby;
 
 
 public class RNNearbyModule extends ReactContextBaseJavaModule implements LifecycleEventListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "RNNearby";
 
     private final ReactApplicationContext reactContext;
+
+    private GoogleApiClient mGoogleApiClient;
 
     public RNNearbyModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -39,7 +42,12 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
     @Override
     public void initialize() {
         Log.d(TAG, "Initializing module");
-        checkPermissions();
+
+        if(!checkPermissions()) {
+            return;
+        }
+
+        initGmsClient();
     }
 
     @Override
@@ -72,11 +80,24 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
         Log.w(TAG, "Gms connection failure");
     }
 
-    private void checkPermissions() {
+    private boolean checkPermissions() {
         if (ContextCompat.checkSelfPermission(getReactApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Permissions granted");
-        } else {
-            Log.w(TAG, "Permissions required");
+
+            return true;
         }
+
+        Log.w(TAG, "Permissions required");
+        return false;
+    }
+
+    private void initGmsClient() {
+        Log.d(TAG, "Initializing Google Api Client");
+        mGoogleApiClient = new GoogleApiClient.Builder(this.getReactApplicationContext())
+                .addApi(Nearby.MESSAGES_API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+        mGoogleApiClient.connect();
     }
 }
