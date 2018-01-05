@@ -3,6 +3,7 @@ package com.reactlibrary;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,6 +45,11 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
         Log.d(TAG, "Initializing module");
 
         if(!checkPermissions()) {
+            return;
+        }
+
+        if(!checkAndroidVersion()) {
+            Log.w(TAG, "Android version is not compatible, ICS+ required");
             return;
         }
 
@@ -89,6 +95,10 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
 
         Log.w(TAG, "Permissions required");
         return false;
+    }
+
+    private boolean checkAndroidVersion() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
     }
 
     private void initGmsClient() {
