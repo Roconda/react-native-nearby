@@ -93,11 +93,16 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
 
     private void initGmsClient() {
         Log.d(TAG, "Initializing Google Api Client");
-        mGoogleApiClient = new GoogleApiClient.Builder(this.getReactApplicationContext())
-                .addApi(Nearby.MESSAGES_API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
+        if(mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this.getReactApplicationContext())
+                    .addApi(Nearby.MESSAGES_API)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+        }
+
+        // Connect anyways
         mGoogleApiClient.connect();
-    }
+     }
+
 }
