@@ -2,6 +2,7 @@
 package com.reactlibrary;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,7 +18,17 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.nearby.Nearby;
+import com.google.android.gms.nearby.messages.BleSignal;
+import com.google.android.gms.nearby.messages.Distance;
+import com.google.android.gms.nearby.messages.Message;
+import com.google.android.gms.nearby.messages.MessageListener;
+import com.google.android.gms.nearby.messages.NearbyMessagesStatusCodes;
+import com.google.android.gms.nearby.messages.Strategy;
+import com.google.android.gms.nearby.messages.SubscribeCallback;
+import com.google.android.gms.nearby.messages.SubscribeOptions;
 
 
 public class RNNearbyModule extends ReactContextBaseJavaModule implements LifecycleEventListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -26,6 +37,28 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
     private final ReactApplicationContext reactContext;
 
     private GoogleApiClient mGoogleApiClient;
+
+    private MessageListener mMessageListener = new MessageListener() {
+        @Override
+        public void onFound(Message message) {
+            Log.d(TAG, "Found message: " + new String(message.getContent()));
+        }
+
+        @Override
+        public void onLost(Message message) {
+            Log.d(TAG, "Lost sight of message: " + new String(message.getContent()));
+        }
+
+        @Override
+        public void onBleSignalChanged(Message message, BleSignal bleSignal) {
+            Log.d(TAG, "onBleSignalChanged");
+        }
+
+        @Override
+        public void onDistanceChanged(Message message, Distance distance) {
+            Log.d(TAG, "onDistanceChanged");
+        }
+    };
 
     public RNNearbyModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -74,6 +107,8 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.d(TAG, "Gms connected");
+
+        subscribe();
     }
 
     @Override
@@ -84,6 +119,20 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.w(TAG, "Gms connection failure");
+
+        Log.d(TAG, connectionResult.toString());
+        if(connectionResult.hasResolution()) {
+            Log.d(TAG, "Connection resolution found");
+            try {
+                PendingIntent pendingIntent = connectionResult.getResolution();
+                pendingIntent.send();
+            } catch (PendingIntent.CanceledException e) {
+                e.printStackTrace();
+                Log.e(TAG, e.toString());
+            }
+        } else {
+            Log.d(TAG, "No connection resolution");
+        }
     }
 
     private boolean checkPermissions() {
@@ -114,5 +163,28 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
         // Connect anyways
         mGoogleApiClient.connect();
      }
+
+    private void subscribe() {
+        Log.d(TAG, "Subscribing");
+
+        SubscribeOptions options = new SubscribeOptions.Builder()
+                .setStrategy(Strategy.BLE_ONLY)
+                .build();
+        Nearby.Messages.subscribe(mGoogleApiClient, mMessageListener, options)
+                .setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(@NonNull Status status) {
+                        if(status.isSuccess()) {
+                            Log.d(TAG, "Subscribe success!");
+                        } else {
+                            Log.e(TAG, "Subscribe failure: " + NearbyMessagesStatusCodes.getStatusCodeString(status.getStatusCode()));
+                        }
+                    }
+                });
+    }
+
+    private void unsubscribe() {
+
+    }
 
 }
