@@ -97,11 +97,13 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
     @Override
     public void onHostPause() {
         Log.d(TAG, "Pausing Nearby subscriptions");
+        unsubscribe();
     }
 
     @Override
     public void onHostDestroy() {
         Log.d(TAG, "Stopping Nearby subscriptions");
+        unsubscribe();
     }
 
     @Override
@@ -184,7 +186,8 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
     }
 
     private void unsubscribe() {
-
+        Log.d(TAG, "Unsubscribing");
+        Nearby.Messages.unsubscribe(mGoogleApiClient, mMessageListener);
     }
 
 }
