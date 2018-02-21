@@ -11,9 +11,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -36,24 +39,49 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
     private GoogleApiClient mGoogleApiClient;
 
     private MessageListener mMessageListener = new MessageListener() {
+        /**
+         * This method emits Android's nearby messages to react-native's javascript.
+         * All events are name spaced by default like: `RNNEARBY_FOUND`.
+         *
+         * @param eventType Event type (eg. onFound).
+         * @param message Message object.
+         */
+        private void emitToJS(String eventType, Message message) {
+            WritableMap eventData = Arguments.createMap();
+            eventData.putString("content", new String(message.getContent()));
+            eventData.putString("namespace", new String(message.getNamespace()));
+            eventData.putString("type", new String(message.getType()));
+
+            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit(TAG.concat("_".concat(eventType.toUpperCase())), eventData);
+        }
+
         @Override
         public void onFound(Message message) {
             Log.d(TAG, "Found message: " + new String(message.getContent()));
+
+            emitToJS("FOUND", message);
         }
 
         @Override
         public void onLost(Message message) {
             Log.d(TAG, "Lost sight of message: " + new String(message.getContent()));
+
+            emitToJS("LOST", message);
         }
 
         @Override
         public void onBleSignalChanged(Message message, BleSignal bleSignal) {
             Log.d(TAG, "onBleSignalChanged");
+
+            emitToJS("SIGNAL_CHANGE", message);
         }
 
         @Override
         public void onDistanceChanged(Message message, Distance distance) {
             Log.d(TAG, "onDistanceChanged");
+
+            emitToJS("DISTANCE_CHANGE", message);
         }
     };
 
