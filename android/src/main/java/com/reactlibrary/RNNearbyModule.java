@@ -14,8 +14,6 @@ import android.util.Log;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.Callback;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -27,7 +25,6 @@ import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 import com.google.android.gms.nearby.messages.NearbyMessagesStatusCodes;
 import com.google.android.gms.nearby.messages.Strategy;
-import com.google.android.gms.nearby.messages.SubscribeCallback;
 import com.google.android.gms.nearby.messages.SubscribeOptions;
 
 
@@ -189,5 +186,4 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
         Log.d(TAG, "Unsubscribing");
         Nearby.Messages.unsubscribe(mGoogleApiClient, mMessageListener);
     }
-
 }
