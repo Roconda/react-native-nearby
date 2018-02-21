@@ -41,7 +41,7 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
     private MessageListener mMessageListener = new MessageListener() {
         /**
          * This method emits Android's nearby messages to react-native's javascript.
-         * All events are name spaced by default like: `RNNEARBY_FOUND`.
+         * All events are name spaced by default like: `RNNearby_FOUND`.
          *
          * @param eventType Event type (eg. onFound).
          * @param message Message object.
