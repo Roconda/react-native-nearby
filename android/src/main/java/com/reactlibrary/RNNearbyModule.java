@@ -95,7 +95,7 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
 
     @Override
     public String getName() {
-        return "RNNearby";
+        return TAG;
     }
 
     @Override
