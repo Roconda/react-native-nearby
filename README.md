@@ -5,6 +5,12 @@
 
 `$ npm install react-native-nearby --save`
 
+### iOS
+
+1. Initiate a podfile in case you don't have a workspace yet `cd ios/ && pod init`
+2. Add `pod 'NearbyMessages'` to the podfile located at `Podfile`
+3. Run `pod install` to install the dependencies
+
 ### Mostly automatic installation
 
 `$ react-native link react-native-nearby`
