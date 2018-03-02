@@ -4,8 +4,8 @@
 #else
 #import <React/RCTBridgeModule.h>
 #endif
+#import <GNSMessages.h>
 
 @interface RNNearby : NSObject <RCTBridgeModule>
-
+- (instancetype)initWithApiKey:(nonnull NSString*)apiKey;
 @end
-  
