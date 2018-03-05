@@ -70,4 +70,9 @@ RCT_EXPORT_METHOD(subscribe) {
     }];
 }
 
+RCT_EXPORT_METHOD(unsubscribe) {
+    NSLog(@"RNNearby unsubscribe");
+    _msgSubscription = nil;
+}
+
 @end
