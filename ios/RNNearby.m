@@ -5,40 +5,60 @@ GNSMessageManager *_msgManager = nil;
 id<GNSSubscription> _msgSubscription = nil;
 
 @implementation RNNearby
+{
+    bool hasListeners;
+}
 
 - (dispatch_queue_t)methodQueue
 {
     return dispatch_get_main_queue();
 }
+
 RCT_EXPORT_MODULE()
 
-- (instancetype)initWithApiKey:(nonnull NSString*)apiKey {
-    self = [super init];
-    if (self != nil) {
-        NSLog(@"RNNearby initiating");
++ (instancetype)initWithApiKey:(nonnull NSString*)apiKey {
+    static RNNearby *sharedInstance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         _apiKey = apiKey;
-        NSLog(@"RNNearby apiKey: %@", apiKey);
-        [self subscribe];
-    }
-    return self;
+        sharedInstance = [[self alloc] init];
+    });
+
+    return sharedInstance;
 }
 
 - (NSArray<NSString *> *)supportedEvents {
     return @[@"RNNearby_FOUND", @"RNNearby_LOST"];
 }
 
-- (void)sendEventWithName:(NSString*)name body:(GNSMessage*)message {
+- (void)emitToJS:(NSString*)eventType message:(GNSMessage*)message {
     NSString *receivedDataString = [[NSString alloc] initWithData:message.content encoding:NSUTF8StringEncoding];
     NSLog(@"RNNearby received data %@",receivedDataString);
+
+    if (hasListeners) {
+        [self sendEventWithName:eventType body:@{
+                                                 @"content": receivedDataString,
+                                                 @"namespace": message.messageNamespace,
+                                                 @"type": message.type
+                                                 }];
+    }
 }
 
-- (void)subscribe {
-    NSLog(@"RNNearby subscribing");
+- (void)startObserving {
+    hasListeners = YES;
+    NSLog(@"RNNearby start observing");
+};
+- (void)stopObserving {
+    hasListeners = NO;
+    NSLog(@"RNNearby stop observing");
+};
+
+RCT_EXPORT_METHOD(subscribe) {
     _msgManager = [[GNSMessageManager alloc] initWithAPIKey:_apiKey];
     _msgSubscription = [_msgManager subscriptionWithMessageFoundHandler:^(GNSMessage *message) {
         NSLog(@"RNNearby msg found!");
 
-        [self sendEventWithName:@"RNNearby_FOUND" body:message];
+        [self emitToJS:@"RNNearby_FOUND" message:message];
     } messageLostHandler:^(GNSMessage *message) {
         NSLog(@"RNNearby msg lost!");
     } paramsBlock:^(GNSSubscriptionParams *params) {
