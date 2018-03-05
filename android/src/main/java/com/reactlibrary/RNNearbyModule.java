@@ -135,8 +135,6 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.d(TAG, "Gms connected");
-
-        subscribe();
     }
 
     @Override
