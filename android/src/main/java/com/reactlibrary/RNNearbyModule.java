@@ -176,6 +176,10 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
     }
 
+    private boolean isConnected() {
+        return mGoogleApiClient != null && mGoogleApiClient.isConnected();
+    }
+
     private void initGmsClient() {
         Log.d(TAG, "Initializing Google Api Client");
         if(mGoogleApiClient == null) {
@@ -186,13 +190,14 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
                     .build();
         }
 
-        // Connect anyways
         mGoogleApiClient.connect();
      }
 
     @ReactMethod
     private void subscribe() {
         Log.d(TAG, "Subscribing");
+
+        if (!this.isConnected()) return;
 
         SubscribeOptions options = new SubscribeOptions.Builder()
                 .setStrategy(Strategy.BLE_ONLY)
@@ -213,6 +218,8 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
     @ReactMethod
     private void unsubscribe() {
         Log.d(TAG, "Unsubscribing");
-        Nearby.Messages.unsubscribe(mGoogleApiClient, mMessageListener);
+        if(this.isConnected()) {
+            Nearby.Messages.unsubscribe(mGoogleApiClient, mMessageListener);
+        }
     }
 }
