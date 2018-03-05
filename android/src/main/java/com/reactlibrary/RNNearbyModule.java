@@ -15,6 +15,7 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.gms.common.ConnectionResult;
@@ -211,7 +212,8 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
                 });
     }
 
-    private void unsubscribe() {
+    @ReactMethod
+    public void unsubscribe() {
         Log.d(TAG, "Unsubscribing");
         Nearby.Messages.unsubscribe(mGoogleApiClient, mMessageListener);
     }
