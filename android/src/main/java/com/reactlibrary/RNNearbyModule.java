@@ -191,7 +191,7 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
      }
 
     @ReactMethod
-    public void subscribe() {
+    private void subscribe() {
         Log.d(TAG, "Subscribing");
 
         SubscribeOptions options = new SubscribeOptions.Builder()
@@ -211,7 +211,7 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
     }
 
     @ReactMethod
-    public void unsubscribe() {
+    private void unsubscribe() {
         Log.d(TAG, "Unsubscribing");
         Nearby.Messages.unsubscribe(mGoogleApiClient, mMessageListener);
     }
