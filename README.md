@@ -52,8 +52,14 @@
 ## Usage
 ```javascript
 import RNNearby from 'react-native-nearby';
-
-// TODO: What to do with the module?
-RNNearby;
 ```
-  
+
+### Subscribe
+```javascript
+RNNearby.subscribe();
+```
+
+### Unsubscribe
+```javascript
+RNNearby.unsubscribe();
+```
