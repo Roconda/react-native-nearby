@@ -191,7 +191,8 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
         mGoogleApiClient.connect();
      }
 
-    private void subscribe() {
+    @ReactMethod
+    public void subscribe() {
         Log.d(TAG, "Subscribing");
 
         SubscribeOptions options = new SubscribeOptions.Builder()
