@@ -59,6 +59,15 @@ import RNNearby from 'react-native-nearby';
 RNNearby.subscribe();
 ```
 
+The following events can be emitted when subscribing.
+
+| Event name | Notes|
+|---|---|
+| RNNearby_FOUND |  |
+| RNNearby_LOST | |
+| RNNearby\_SIGNAL_CHANGE | *Android only* |
+| RNNearby\_DISTANCE_CHANGE | *Android only* |
+
 ### Unsubscribe
 ```javascript
 RNNearby.unsubscribe();
