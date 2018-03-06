@@ -28,7 +28,7 @@ RCT_EXPORT_MODULE()
 }
 
 - (NSArray<NSString *> *)supportedEvents {
-    return @[@"RNNearby_FOUND", @"RNNearby_LOST"];
+    return @[@"RNNearby_FOUND", @"RNNearby_LOST", @"RNNearby_SIGNAL_CHANGE", @"RNNearby_DISTANCE_CHANGE"];
 }
 
 - (void)emitToJS:(NSString*)eventType message:(GNSMessage*)message {
