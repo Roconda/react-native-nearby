@@ -192,7 +192,7 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Activi
         if(requestCode == REQUEST_RESOLVE_ERROR) {
             mResolvingError = false;
 
-            Log.d(TAG, "Receiving consent feedback");
+            Log.d(TAG, "Receiving Google API activity resolution feedback");
             if(resultCode == RESULT_OK) {
                 if(!mGoogleApiClient.isConnecting() && !mGoogleApiClient.isConnected()) {
                     mGoogleApiClient.connect();
