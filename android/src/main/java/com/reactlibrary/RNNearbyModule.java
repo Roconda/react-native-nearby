@@ -162,6 +162,8 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Activi
 
         if(mResolvingError) {
             // Already resolving the error.
+            Log.w(TAG, "Resolving error, unable to connect to the Google API");
+
             return;
         } else if (connectionResult.hasResolution()) {
             Log.d(TAG, "Connection resolution found");
@@ -177,8 +179,11 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Activi
                 mGoogleApiClient.connect();
             }
         } else {
-            // TODO: Show dialog
+            // TODO: Handle this corner case properly.
+            Log.w(TAG, "Unable to resolve connection resolution, error code: " + Integer.toString(connectionResult.getErrorCode()) + " thrown");
+            Log.w(TAG, connectionResult.getErrorMessage());
 
+            mResolvingError = true;
         }
     }
 
