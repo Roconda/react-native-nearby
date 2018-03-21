@@ -180,8 +180,6 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Activi
             // TODO: Show dialog
 
         }
-
-        getReactApplicationContext();
     }
 
     @Override
