@@ -2,15 +2,19 @@
 package com.reactlibrary;
 
 import android.Manifest;
-import android.app.PendingIntent;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -31,9 +35,17 @@ import com.google.android.gms.nearby.messages.NearbyMessagesStatusCodes;
 import com.google.android.gms.nearby.messages.Strategy;
 import com.google.android.gms.nearby.messages.SubscribeOptions;
 
+import static android.app.Activity.RESULT_OK;
 
-public class RNNearbyModule extends ReactContextBaseJavaModule implements LifecycleEventListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+
+public class RNNearbyModule extends ReactContextBaseJavaModule implements ActivityEventListener, LifecycleEventListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "RNNearby";
+
+    // Request code to use when launching the resolution activity, which is over 9000.
+    private static final int REQUEST_RESOLVE_ERROR = 9260;
+
+    // Bool to track whether the app is already resolving an error
+    private boolean mResolvingError = false;
 
     private final ReactApplicationContext reactContext;
 
@@ -89,7 +101,8 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
     public RNNearbyModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
-        reactContext.addLifecycleEventListener(this);
+        this.reactContext.addLifecycleEventListener(this);
+        this.reactContext.addActivityEventListener(this);
 
         Log.d(TAG, "Starting module");
     }
@@ -142,24 +155,54 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Lifecy
         Log.d(TAG, "Gms connection suspended");
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.DONUT)
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.w(TAG, "Gms connection failure");
 
-        Log.d(TAG, connectionResult.toString());
-        if(connectionResult.hasResolution()) {
+        if(mResolvingError) {
+            // Already resolving the error.
+            Log.w(TAG, "Resolving error, unable to connect to the Google API");
+
+            return;
+        } else if (connectionResult.hasResolution()) {
             Log.d(TAG, "Connection resolution found");
+
             try {
-                PendingIntent pendingIntent = connectionResult.getResolution();
-                pendingIntent.send();
-            } catch (PendingIntent.CanceledException e) {
-                e.printStackTrace();
-                Log.e(TAG, e.toString());
+                mResolvingError = true;
+                connectionResult.startResolutionForResult(this.getCurrentActivity(), REQUEST_RESOLVE_ERROR);
+            } catch (IntentSender.SendIntentException e) {
+                // There was an error with the resolution intent. Try again.
+                Log.w(TAG, "Connection resolution has gone wrong, exception thrown");
+                Log.w(TAG, e.getMessage());
+
+                mGoogleApiClient.connect();
             }
         } else {
-            Log.d(TAG, "No connection resolution");
+            // TODO: Handle this corner case properly.
+            Log.w(TAG, "Unable to resolve connection resolution, error code: " + Integer.toString(connectionResult.getErrorCode()) + " thrown");
+            Log.w(TAG, connectionResult.getErrorMessage());
+
+            mResolvingError = true;
         }
     }
+
+    @Override
+    public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_RESOLVE_ERROR) {
+            mResolvingError = false;
+
+            Log.d(TAG, "Receiving Google API activity resolution feedback");
+            if(resultCode == RESULT_OK) {
+                if(!mGoogleApiClient.isConnecting() && !mGoogleApiClient.isConnected()) {
+                    mGoogleApiClient.connect();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) { }
 
     private boolean checkPermissions() {
         if (ContextCompat.checkSelfPermission(getReactApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
