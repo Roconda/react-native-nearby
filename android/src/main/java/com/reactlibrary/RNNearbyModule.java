@@ -181,7 +181,6 @@ public class RNNearbyModule extends ReactContextBaseJavaModule implements Activi
         } else {
             // TODO: Handle this corner case properly.
             Log.w(TAG, "Unable to resolve connection resolution, error code: " + Integer.toString(connectionResult.getErrorCode()) + " thrown");
-            Log.w(TAG, connectionResult.getErrorMessage());
 
             mResolvingError = true;
         }
